@@ -1,0 +1,46 @@
+services:
+  # Service pour la base de données PostgreSQL
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    ports:
+      - "5432:5432"  # Port local:port du conteneur
+    environment:
+      POSTGRES_USER: user       # Nom d'utilisateur pour se connecter
+      POSTGRES_PASSWORD: password  # Mot de passe pour se connecter
+      POSTGRES_DB: mydb         # Nom de la BDD
+    volumes:
+      - db_data:/var/lib/postgresql/data  # Volume persistant pour les données
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql  # Script de création de la table
+
+  # Service pour l'application Go
+  back:
+    build:
+      context: ./Back  # Le répertoire où se trouve ton Dockerfile
+    container_name: back_app
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgres://user:password@postgres_db:5432/mydb?sslmode=disable
+      PORT: 8080
+    depends_on:
+      - db
+    
+  # Service pour l'application Front (HTML + JS)
+  front:
+    build:
+      context: ./Front
+    container_name: front_app
+    ports:
+      - "80:80"
+    depends_on:
+      - back
+    networks:
+      - backend
+
+volumes:
+  db_data:
+
+networks:
+  backend:
+    driver: bridge

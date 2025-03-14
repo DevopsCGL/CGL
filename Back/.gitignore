@@ -1,9 +1,6 @@
 # Dossier des configurations d'IDE
 .vscode/
 
-# Fichier de variables d'environnement
-.env
-
 # Fichiers binaires générés par Go (ex: .exe, .dll)
 *.exe
 *.exe~
